@@ -21,6 +21,8 @@ import { CyclesAdmin } from '@/routes/_app.admin.cycles';
 import { Escalations } from '@/routes/_app.admin.escalations';
 import { SharedGoals } from '@/routes/_app.admin.shared';
 import { ThrustAdmin } from '@/routes/_app.admin.thrust';
+import { UsersAdmin } from '@/routes/_app.admin.users';
+import { AchievementReport } from '@/routes/_app.admin.achievement';
 
 const queryClient = new QueryClient();
 
@@ -90,6 +92,8 @@ export default function App() {
               <Route path="/admin/escalations" element={<ProtectedRoute roles={['admin']}><Escalations /></ProtectedRoute>} />
               <Route path="/admin/shared" element={<ProtectedRoute roles={['admin']}><SharedGoals /></ProtectedRoute>} />
               <Route path="/admin/thrust" element={<ProtectedRoute roles={['admin']}><ThrustAdmin /></ProtectedRoute>} />
+              <Route path="/admin/users" element={<ProtectedRoute roles={['admin']}><UsersAdmin /></ProtectedRoute>} />
+              <Route path="/admin/achievement" element={<ProtectedRoute roles={['admin']}><AchievementReport /></ProtectedRoute>} />
             </Route>
             <Route path="*" element={<Navigate to="/" replace />} />
           </Routes>
