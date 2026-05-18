@@ -413,12 +413,18 @@ GitHub Repository
 
 | View | Description |
 |---|---|
-| ![Employee Dashboard](screenshots/employee-dashboard.png) | **Employee Dashboard** — Goal overview, score summary, check-in status |
-| ![Goal Creation](screenshots/goal-creation.png) | **Goal Creation** — Thrust area, UoM type, target, weightage |
-| ![Manager Approvals](screenshots/manager-approvals.png) | **Manager Approvals** — Review and approve/return submitted goals |
-| ![Admin Analytics](screenshots/admin-analytics.png) | **Admin Analytics** — Department-wide performance charts |
-| ![Escalation Centre](screenshots/escalations.png) | **Escalation Centre** — Overdue check-in tracking |
-| ![Audit Log](screenshots/audit-log.png) | **Audit Log** — Full action history with timestamps |
+| ![Employee Dashboard](<img width="1919" height="922" alt="image" src="https://github.com/user-attachments/assets/868b91fd-e444-4d9a-ae07-10cbef64f321" />
+) | **Employee Dashboard** — Goal overview, score summary, check-in status |
+| ![Goal Creation](<img width="1919" height="907" alt="image" src="https://github.com/user-attachments/assets/5bd9ba39-4391-4ba3-ad11-0e8e7e027523" />
+) | **Goal Creation** — Thrust area, UoM type, target, weightage |
+| ![Manager Approvals](<img width="1917" height="918" alt="image" src="https://github.com/user-attachments/assets/983d45da-b2cd-4a23-8879-bba2aefaa68a" />
+) | **Manager Approvals** — Review and approve/return submitted goals |
+| ![Admin Analytics](<img width="1918" height="1075" alt="image" src="https://github.com/user-attachments/assets/90d3371b-f85f-4bf0-acc6-ff8bed5dfca6" />
+) | **Admin Analytics** — Department-wide performance charts |
+| ![Escalation Centre](<img width="1918" height="924" alt="image" src="https://github.com/user-attachments/assets/ad27a860-e704-4a8a-8c22-07765d03d8ae" />
+) | **Escalation Centre** — Overdue check-in tracking |
+| ![Audit Log](<img width="1913" height="926" alt="image" src="https://github.com/user-attachments/assets/e8bc8190-8b90-4c5f-a43f-46491a633fde" />
+) | **Audit Log** — Full action history with timestamps |
 
 <br/>
 
@@ -452,7 +458,7 @@ Use these accounts to explore all three portals on the live demo:
 ### 1. Clone the repository
 
 ```bash
-git clone https://github.com/YOUR_USERNAME/atomquest.git
+git clone https://github.com/Nulakalanani/atomquest.git
 cd atomquest/atomquest-vercel
 ```
 
