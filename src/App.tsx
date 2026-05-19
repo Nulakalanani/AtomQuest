@@ -1,4 +1,5 @@
 import { BrowserRouter, Routes, Route, Navigate, Outlet } from 'react-router-dom';
+import { useState } from 'react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { Toaster } from 'sonner';
 import { AuthProvider, useAuth } from '@/lib/auth';
@@ -21,8 +22,6 @@ import { CyclesAdmin } from '@/routes/_app.admin.cycles';
 import { Escalations } from '@/routes/_app.admin.escalations';
 import { SharedGoals } from '@/routes/_app.admin.shared';
 import { ThrustAdmin } from '@/routes/_app.admin.thrust';
-import { UsersAdmin } from '@/routes/_app.admin.users';
-import { AchievementReport } from '@/routes/_app.admin.achievement';
 
 const queryClient = new QueryClient();
 
@@ -39,21 +38,52 @@ function ProtectedRoute({ children, roles }: { children: React.ReactNode; roles?
 }
 
 function AppLayout() {
-  const { session, loading, effectiveRole } = useAuth();
+  const { session, loading, effectiveRole, refresh } = useAuth();
+  const [healing, setHealing] = useState(false);
+
   if (loading) return (
     <div className="grid min-h-screen place-items-center bg-background">
       <div className="animate-pulse text-muted-foreground">Loading…</div>
     </div>
   );
   if (!session) return <Navigate to="/" replace />;
-  if (!effectiveRole) return (
-    <div className="grid min-h-screen place-items-center bg-background px-4 text-center">
-      <div>
-        <h1 className="font-display text-xl">No role assigned</h1>
-        <p className="mt-2 text-sm text-muted-foreground">Ask an admin to grant you a role.</p>
+
+  if (!effectiveRole) {
+    const selfHeal = async () => {
+      setHealing(true);
+      const { assignSelfEmployeeRole } = await import('@/lib/seed.functions');
+      const result = await assignSelfEmployeeRole();
+      if (result.ok) {
+        await refresh();
+        window.location.reload();
+      } else {
+        alert(result.message);
+      }
+      setHealing(false);
+    };
+
+    return (
+      <div className="grid min-h-screen place-items-center bg-background px-4 text-center">
+        <div className="space-y-4">
+          <h1 className="font-display text-xl">Setting up your account…</h1>
+          <p className="text-sm text-muted-foreground">
+            Your role hasn't been assigned yet.
+          </p>
+          <button
+            onClick={selfHeal}
+            disabled={healing}
+            className="rounded-md bg-primary px-4 py-2 text-sm text-primary-foreground hover:opacity-90 disabled:opacity-50"
+          >
+            {healing ? 'Assigning role…' : 'Activate my account'}
+          </button>
+          <p className="text-xs text-muted-foreground">
+            Or ask an admin to assign your role in the Supabase dashboard.
+          </p>
+        </div>
       </div>
-    </div>
-  );
+    );
+  }
+
   return <AppShell><Outlet /></AppShell>;
 }
 
@@ -92,8 +122,6 @@ export default function App() {
               <Route path="/admin/escalations" element={<ProtectedRoute roles={['admin']}><Escalations /></ProtectedRoute>} />
               <Route path="/admin/shared" element={<ProtectedRoute roles={['admin']}><SharedGoals /></ProtectedRoute>} />
               <Route path="/admin/thrust" element={<ProtectedRoute roles={['admin']}><ThrustAdmin /></ProtectedRoute>} />
-              <Route path="/admin/users" element={<ProtectedRoute roles={['admin']}><UsersAdmin /></ProtectedRoute>} />
-              <Route path="/admin/achievement" element={<ProtectedRoute roles={['admin']}><AchievementReport /></ProtectedRoute>} />
             </Route>
             <Route path="*" element={<Navigate to="/" replace />} />
           </Routes>
