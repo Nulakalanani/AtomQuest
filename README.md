@@ -433,9 +433,9 @@ Use these accounts to explore all three portals on the live demo:
 
 | Role | Email | Password | Access |
 |---|---|---|---|
-| 👤 **Employee** | `employee@demo.com` | `password123` | My Goals, Check-ins, Progress |
-| 👥 **Manager** | `manager@demo.com` | `password123` | Team Approvals, Check-in Review |
-| 🛡️ **Admin** | `admin@demo.com` | `password123` | Full platform access |
+| 👤 **Employee** | `employee@atomquest.com` | `password123` | My Goals, Check-ins, Progress |
+| 👥 **Manager** | `manager@atomquest.com` | `password123` | Team Approvals, Check-in Review |
+| 🛡️ **Admin** | `admin@atomquest.com` | `password123` | Full platform access |
 
 > 💡 You can also use the **Role Switcher** in the app header to toggle between roles if your account has multiple roles assigned.
 
