@@ -7,7 +7,7 @@ import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { toast } from 'sonner';
 import { Target, Sparkles, ShieldCheck, BarChart3 } from 'lucide-react';
-import { seedDemoData } from '@/lib/seed.functions';
+// seed.functions is lazy-loaded to avoid static+dynamic import conflict (causes infinite loading)
 
 export function Landing() {
   const { session, effectiveRole, loading } = useAuth();
@@ -43,6 +43,7 @@ export function Landing() {
   const seed = async () => {
     setSeeding(true);
     try {
+      const { seedDemoData } = await import('@/lib/seed.functions');
       const result = await seedDemoData();
       if (result.ok) {
         toast.success('Demo data ready — try any login button');

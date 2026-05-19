@@ -1,4 +1,4 @@
-import { createContext, useContext, useEffect, useState, type ReactNode } from "react";
+import { createContext, useContext, useEffect, useState, useRef, type ReactNode } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import type { Session, User } from "@supabase/supabase-js";
 
@@ -32,6 +32,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [roles, setRoles] = useState<AppRole[]>([]);
   const [effectiveRole, setEffectiveRoleState] = useState<AppRole | null>(null);
   const [loading, setLoading] = useState(true);
+  // Track whether we've already completed initial auth check
+  const initialised = useRef(false);
 
   const loadProfile = async (uid: string) => {
     try {
@@ -51,7 +53,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         rs[0] ?? null;
       setEffectiveRoleState(initial);
     } catch {
-      // loadProfile failed (RLS error, network) — don't infinite-spin
       setProfile(null);
       setRoles([]);
       setEffectiveRoleState(null);
@@ -59,16 +60,34 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   };
 
   useEffect(() => {
-    let settled = false;
+    let cancelled = false;
 
     const finish = () => {
-      if (!settled) {
-        settled = true;
-        setLoading(false);
-      }
+      if (!cancelled) setLoading(false);
     };
 
+    // Hard timeout — never spin forever
+    const timer = setTimeout(finish, 8000);
+
+    // Get initial session first, synchronously resolving loading state
+    supabase.auth.getSession().then(async ({ data: { session: s } }) => {
+      if (cancelled) return;
+      setSession(s);
+      if (s?.user) {
+        await loadProfile(s.user.id);
+      }
+      initialised.current = true;
+      finish();
+    }).catch(() => {
+      initialised.current = true;
+      finish();
+    });
+
+    // Listen for subsequent changes (login, logout, token refresh)
     const { data: { subscription } } = supabase.auth.onAuthStateChange(async (_e, s) => {
+      if (cancelled) return;
+      // Skip the initial INITIAL_SESSION event if getSession already handled it
+      if (!initialised.current) return;
       setSession(s);
       if (s?.user) {
         await loadProfile(s.user.id);
@@ -78,22 +97,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         setEffectiveRoleState(null);
         if (typeof window !== "undefined") localStorage.removeItem("effectiveRole");
       }
-      finish();
     });
 
-    // Safety fallback — if onAuthStateChange is slow, getSession resolves loading
-    supabase.auth.getSession().then(async ({ data: { session: s } }) => {
-      if (!settled) {
-        setSession(s);
-        if (s?.user) await loadProfile(s.user.id);
-        finish();
-      }
-    }).catch(() => finish());
-
-    // Hard timeout — never spin forever
-    const timer = setTimeout(finish, 5000);
-
     return () => {
+      cancelled = true;
       subscription.unsubscribe();
       clearTimeout(timer);
     };
