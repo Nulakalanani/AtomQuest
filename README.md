@@ -425,6 +425,9 @@ GitHub Repository
 ---
 
 ## 🔑 Demo Credentials
+⚠️ Important — How to Login:
+On the login page, click the Quick Access role buttons at the bottom of the form. They auto-fill and log you in instantly.
+Do NOT type credentials manually — use the buttons only.
 
 Use these accounts to explore all three portals on the live demo:
 
