@@ -60,20 +60,22 @@ export function SharedGoals() {
       const ids = Array.from(selected);
       const base = {
         thrust_area: thrust, title, description,
-        uom_type: uom, target: Number(target), weightage: Number(weightage),
+        uom_type: uom,
+        target: uom === "ZERO" ? 0 : Number(target),
+        weightage: Number(weightage),
         is_shared: true, status: "APPROVED" as const, locked: false,
       };
-      // Insert the first as the parent
-      const { data: parent, error: pErr } = await supabase.from("goals")
-        .insert({ ...base, employee_id: ids[0] }).select("id").single();
+      const rows = ids.map((employee_id) => ({ ...base, employee_id }));
+      const { data: inserted, error: pErr } = await supabase.from("goals")
+        .insert(rows).select("id");
       if (pErr) throw pErr;
-      // Insert the rest pointing to parent
-      if (ids.length > 1) {
-        const rest = ids.slice(1).map((employee_id) => ({
-          ...base, employee_id, parent_goal_id: parent.id,
-        }));
-        const { error: rErr } = await supabase.from("goals").insert(rest);
-        if (rErr) throw rErr;
+      if (inserted && inserted.length > 1) {
+        const parentId = (inserted[0] as any).id;
+        const siblingIds = inserted.slice(1).map((r: any) => r.id);
+        const { error: linkErr } = await supabase.from("goals")
+          .update({ parent_goal_id: parentId })
+          .in("id", siblingIds);
+        if (linkErr) throw linkErr;
       }
       toast.success(`Shared goal pushed to ${ids.length} employee(s)`);
       setTitle(""); setDescription(""); setTarget(0); setSelected(new Set());

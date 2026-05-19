@@ -106,9 +106,13 @@ export function GoalSheetWizard() {
         }
         const payload = {
           employee_id: user.id,
+          cycle_id: activeCycle?.id ?? null,
           thrust_area: g.thrust_area,
           title: g.title, description: g.description,
-          uom_type: g.uom_type, target: Number(g.target), weightage: Number(g.weightage),
+          uom_type: g.uom_type,
+          // ZERO-type goals must always have target = 0 (BRD §2.2)
+          target: g.uom_type === "ZERO" ? 0 : Number(g.target),
+          weightage: Number(g.weightage),
         };
         if (g.id) {
           await supabase.from("goals").update(payload).eq("id", g.id);

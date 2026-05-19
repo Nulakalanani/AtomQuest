@@ -34,25 +34,40 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [loading, setLoading] = useState(true);
 
   const loadProfile = async (uid: string) => {
-    const [{ data: p }, { data: r }] = await Promise.all([
-      supabase.from("profiles").select("*").eq("id", uid).maybeSingle(),
-      supabase.from("user_roles").select("role").eq("user_id", uid),
-    ]);
-    setProfile((p as Profile) ?? null);
-    const rs = (r ?? []).map((x: any) => x.role as AppRole);
-    setRoles(rs);
-    // Pick highest privilege as default
-    const pref =
-      (typeof window !== "undefined" && (localStorage.getItem("effectiveRole") as AppRole)) || null;
-    const initial =
-      pref && rs.includes(pref) ? pref :
-      rs.includes("admin") ? "admin" :
-      rs.includes("manager") ? "manager" :
-      rs[0] ?? null;
-    setEffectiveRoleState(initial);
+    try {
+      const [{ data: p }, { data: r }] = await Promise.all([
+        supabase.from("profiles").select("*").eq("id", uid).maybeSingle(),
+        supabase.from("user_roles").select("role").eq("user_id", uid),
+      ]);
+      setProfile((p as Profile) ?? null);
+      const rs = (r ?? []).map((x: any) => x.role as AppRole);
+      setRoles(rs);
+      const pref =
+        (typeof window !== "undefined" && (localStorage.getItem("effectiveRole") as AppRole)) || null;
+      const initial =
+        pref && rs.includes(pref) ? pref :
+        rs.includes("admin") ? "admin" :
+        rs.includes("manager") ? "manager" :
+        rs[0] ?? null;
+      setEffectiveRoleState(initial);
+    } catch {
+      // loadProfile failed (RLS error, network) — don't infinite-spin
+      setProfile(null);
+      setRoles([]);
+      setEffectiveRoleState(null);
+    }
   };
 
   useEffect(() => {
+    let settled = false;
+
+    const finish = () => {
+      if (!settled) {
+        settled = true;
+        setLoading(false);
+      }
+    };
+
     const { data: { subscription } } = supabase.auth.onAuthStateChange(async (_e, s) => {
       setSession(s);
       if (s?.user) {
@@ -61,15 +76,27 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         setProfile(null);
         setRoles([]);
         setEffectiveRoleState(null);
-        localStorage.removeItem('effectiveRole');
+        if (typeof window !== "undefined") localStorage.removeItem("effectiveRole");
       }
+      finish();
     });
+
+    // Safety fallback — if onAuthStateChange is slow, getSession resolves loading
     supabase.auth.getSession().then(async ({ data: { session: s } }) => {
-      setSession(s);
-      if (s?.user) await loadProfile(s.user.id);
-      setLoading(false);
-    });
-    return () => subscription.unsubscribe();
+      if (!settled) {
+        setSession(s);
+        if (s?.user) await loadProfile(s.user.id);
+        finish();
+      }
+    }).catch(() => finish());
+
+    // Hard timeout — never spin forever
+    const timer = setTimeout(finish, 5000);
+
+    return () => {
+      subscription.unsubscribe();
+      clearTimeout(timer);
+    };
   }, []);
 
   const setEffectiveRole = (r: AppRole) => {

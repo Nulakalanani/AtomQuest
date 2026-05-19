@@ -89,6 +89,8 @@ export function AdminOverview() {
         <Link to="/admin/thrust"><Button variant="outline" size="sm">Thrust areas</Button></Link>
         <Link to="/admin/audit"><Button variant="outline" size="sm">Audit trail</Button></Link>
         <Link to="/admin/analytics"><Button variant="outline" size="sm">Analytics</Button></Link>
+        <Link to="/admin/achievement"><Button variant="outline" size="sm">Achievement Report</Button></Link>
+        <Link to="/admin/goals"><Button variant="outline" size="sm">Manage Goals</Button></Link>
       </div>
     </div>
   );

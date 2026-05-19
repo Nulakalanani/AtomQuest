@@ -4,7 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { AlertTriangle, CheckCircle2, PlayCircle } from "lucide-react";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { toast } from "sonner";
 import { format, differenceInDays } from "date-fns";
 
@@ -78,6 +78,10 @@ export function Escalations() {
       setRunning(false);
     }
   };
+
+  // Auto-run escalation check on first mount if log is empty
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  useEffect(() => { if (!running && logs.length === 0) runCheck(); }, [logs.length]);
 
   const resolve = async (id: string) => {
     const { error } = await supabase.from("escalation_logs")

@@ -2,7 +2,7 @@ import { NavLink, useLocation } from 'react-router-dom';
 import {
   LayoutDashboard, FileEdit, ClipboardCheck, Users, CheckSquare,
   Settings2, Building2, ScrollText, BarChart3, Target, LogOut,
-  Share2, ListChecks, AlertTriangle,
+  Share2, ListChecks, AlertTriangle, Trophy, Unlock,
 } from 'lucide-react';
 import { useAuth, type AppRole } from '@/lib/auth';
 import { RoleSwitcher } from './RoleSwitcher';
@@ -27,6 +27,8 @@ const NAV: Record<AppRole, { to: string; label: string; icon: typeof Target }[]>
     { to: '/admin/escalations',  label: 'Escalations',        icon: AlertTriangle },
     { to: '/admin/audit',        label: 'Audit Trail',        icon: ScrollText },
     { to: '/admin/analytics',    label: 'Analytics',          icon: BarChart3 },
+    { to: '/admin/achievement',  label: 'Achievement Report', icon: Trophy },
+    { to: '/admin/goals',        label: 'Manage Goals',       icon: Unlock },
   ],
 };
 
